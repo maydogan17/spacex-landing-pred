@@ -1,20 +1,16 @@
 # Import required libraries
 import pandas as pd
 import dash
-from dash import html
-from dash import dcc
+import dash_html_components as html
+import dash_core_components as dcc
 from dash.dependencies import Input, Output
-import plotly_express as px
+import plotly.express as px
 
 # Read the airline data into pandas dataframe
-spacex_df = pd.read_csv("falcon9_data.csv")
-max_payload = spacex_df['PayloadMass'].max()
-min_payload = spacex_df['PayloadMass'].min()
-sites = spacex_df['LaunchSite'].unique()
-sites_dict = {}
-sites_dict['default'] = 'All Sites'
-for site in sites:
-    sites_dict[site] = site
+spacex_df = pd.read_csv("spacex_launch_dash.csv")
+max_payload = spacex_df['Payload Mass (kg)'].max()
+min_payload = spacex_df['Payload Mass (kg)'].min()
+
 # Create a dash application
 app = dash.Dash(__name__)
 
