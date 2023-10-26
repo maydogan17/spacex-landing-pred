@@ -1,16 +1,20 @@
 # Import required libraries
 import pandas as pd
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
+from dash import html
+from dash import dcc
 from dash.dependencies import Input, Output
-import plotly.express as px
+import plotly_express as px
 
 # Read the airline data into pandas dataframe
-spacex_df = pd.read_csv("spacex_launch_dash.csv")
-max_payload = spacex_df['Payload Mass (kg)'].max()
-min_payload = spacex_df['Payload Mass (kg)'].min()
-
+spacex_df = pd.read_csv("falcon9_data.csv")
+max_payload = spacex_df['PayloadMass'].max()
+min_payload = spacex_df['PayloadMass'].min()
+sites = spacex_df['LaunchSite'].unique()
+sites_dict = {}
+sites_dict['default'] = 'All Sites'
+for site in sites:
+    sites_dict[site] = site
 # Create a dash application
 app = dash.Dash(__name__)
 
@@ -48,15 +52,15 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
 def get_pie_chart(entered_site):
     filtered_df = spacex_df
     if entered_site == 'All Sites':
-        fig = px.pie(spacex_df, values='class', 
-        names='Launch Site', 
+        fig = px.pie(spacex_df, values='Class', 
+        names='LaunchSite', 
         title='Total Succes Launches by Site')
         return fig
     else:
         # return the outcomes piechart for a selected site
-        filtered_df = spacex_df[spacex_df['Launch Site'] == entered_site]
+        filtered_df = spacex_df[spacex_df['LaunchSite'] == entered_site]
         title = 'Total Succes Launches for Site ' + entered_site
-        fig = px.pie(filtered_df, values=filtered_df['class'].value_counts().values, 
+        fig = px.pie(filtered_df, values=filtered_df['Class'].value_counts().values, 
         names=[0,1], 
         title=title)
         return fig
@@ -69,14 +73,14 @@ def get_scatter_plot(entered_site, payload):
     if entered_site == 'All Sites':
         filtered_df = spacex_df
         low, high = payload
-        mask = (filtered_df['Payload Mass (kg)'] > low) & (filtered_df['Payload Mass (kg)'] < high)
-        fig = px.scatter(filtered_df[mask], x="Payload Mass (kg)", y="class", color="Booster Version Category")
+        mask = (filtered_df['PayloadMass'] > low) & (filtered_df['PayloadMass'] < high)
+        fig = px.scatter(filtered_df[mask], x="PayloadMass", y="Class", color="LaunchSite")
         return fig
     else:
-        filtered_df = spacex_df[spacex_df['Launch Site'] == entered_site]
+        filtered_df = spacex_df[spacex_df['LaunchSite'] == entered_site]
         low, high = payload
-        mask = (filtered_df['Payload Mass (kg)'] > low) & (filtered_df['Payload Mass (kg)'] < high)
-        fig = px.scatter(filtered_df[mask], x="Payload Mass (kg)", y="class", color="Booster Version Category")
+        mask = (filtered_df['PayloadMass'] > low) & (filtered_df['PayloadMass'] < high)
+        fig = px.scatter(filtered_df[mask], x="PayloadMass", y="Class", color="LaunchSite")
         return fig
 
 
